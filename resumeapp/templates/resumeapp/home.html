@@ -1,0 +1,309 @@
+{% extends 'resumeapp/base.html' %}
+{% load static %}
+
+{% block title %}AI Resume Analysis - Intelligent Resume Parser & Career Matcher{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="py-5 position-relative overflow-hidden">
+    <div class="container py-lg-4">
+        <div class="row align-items-center g-5">
+            <!-- Hero Text Content -->
+            <div class="col-lg-6">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(85, 214, 194, 0.1); border: 1px solid rgba(85, 214, 194, 0.25); color: var(--accent-primary); font-size: 0.85rem; font-weight: 600;">
+                    <i class="bi bi-cpu-fill"></i> Machine Learning & NLP Powered
+                </div>
+                
+                <h1 class="display-5 fw-extrabold text-white mb-3 tracking-tight" style="line-height: 1.18;">
+                    Intelligent <span style="background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Resume Analysis</span> & Career Alignment
+                </h1>
+                
+                <p class="lead text-secondary mb-4" style="font-size: 1.05rem; line-height: 1.65;">
+                    Extract technical competencies, evaluate document structure against a transparent 0–100 ATS readiness score, and predict career categories using trained Scikit-Learn models.
+                </p>
+
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <a href="{% url 'signup' %}" class="btn-primary-gradient px-4 py-3">
+                        <i class="bi bi-cloud-arrow-up-fill"></i> Upload Resume Free
+                    </a>
+                    <a href="{% url 'about' %}" class="btn-outline-glass px-4 py-3">
+                        <i class="bi bi-info-circle"></i> Project Architecture
+                    </a>
+                </div>
+
+                <!-- Supported Formats & Security Badge Row -->
+                <div class="d-flex flex-wrap align-items-center gap-4 text-secondary small pt-2">
+                    <span class="d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-file-earmark-pdf text-danger"></i> PDF Resumes
+                    </span>
+                    <span class="d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-file-earmark-word text-primary"></i> Word (.docx)
+                    </span>
+                    <span class="d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-file-earmark-text text-secondary"></i> Plain Text (.txt)
+                    </span>
+                    <span class="d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-shield-check text-success"></i> Multi-Tenant Isolated
+                    </span>
+                </div>
+            </div>
+
+            <!-- Hero Interactive 3D Preview Card -->
+            <div class="col-lg-6">
+                <div class="glass-card p-4 p-md-5 position-relative" style="box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(108, 140, 255, 0.18);">
+                    <!-- Header Bar of Preview -->
+                    <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom" style="border-color: var(--border-color) !important;">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="rounded-circle d-inline-block" style="width: 10px; height: 10px; background: #10B981;"></span>
+                            <small class="text-white fw-bold">Live ATS Scoring Engine</small>
+                        </div>
+                        <span class="badge px-2 py-1" style="background: rgba(108, 140, 255, 0.15); color: #cdd9ff; font-size: 0.75rem;">
+                            v1.0 Candidate Demo
+                        </span>
+                    </div>
+
+                    <div class="row align-items-center g-4 mb-4">
+                        <!-- Left Score Dial -->
+                        <div class="col-sm-5 text-center">
+                            <div class="score-circle score-high mb-2" style="width: 120px; height: 120px;">
+                                <div class="score-number" style="font-size: 2.3rem;">88</div>
+                                <div class="score-label" style="font-size: 0.65rem;">OUT OF 100</div>
+                            </div>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle small">
+                                Excellent Profile
+                            </span>
+                        </div>
+
+                        <!-- Right Score Breakdown Preview -->
+                        <div class="col-sm-7">
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between small text-secondary mb-1">
+                                    <span>Sections Found (5/7)</span>
+                                    <strong class="text-white">25 / 30 pts</strong>
+                                </div>
+                                <div class="progress-dark">
+                                    <div class="progress-bar-primary" style="width: 83%; height: 100%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between small text-secondary mb-1">
+                                    <span>Skills Richness (12 detected)</span>
+                                    <strong class="text-white">35 / 35 pts</strong>
+                                </div>
+                                <div class="progress-dark">
+                                    <div class="progress-bar-purple" style="width: 100%; height: 100%;"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="d-flex justify-content-between small text-secondary mb-1">
+                                    <span>Length & Format (480 words)</span>
+                                    <strong class="text-white">15 / 15 pts</strong>
+                                </div>
+                                <div class="progress-dark">
+                                    <div class="progress-bar-emerald" style="width: 100%; height: 100%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills Tags Preview -->
+                    <div class="mb-3">
+                        <small class="text-secondary d-block fw-semibold mb-2">Detected Technical Skills:</small>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="skill-badge"><i class="bi bi-check2"></i> Python</span>
+                            <span class="skill-badge"><i class="bi bi-check2"></i> Django</span>
+                            <span class="skill-badge"><i class="bi bi-check2"></i> PostgreSQL</span>
+                            <span class="skill-badge"><i class="bi bi-check2"></i> Docker</span>
+                            <span class="skill-badge"><i class="bi bi-check2"></i> Scikit-Learn</span>
+                            <span class="skill-badge"><i class="bi bi-check2"></i> Git</span>
+                        </div>
+                    </div>
+
+                    <!-- ML Model Classification Pill -->
+                    <div class="p-2 px-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(17, 27, 46, 0.7); border: 1px solid var(--border-color);">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-briefcase text-info"></i>
+                            <small class="text-secondary">Predicted Role:</small>
+                            <small class="text-white fw-bold">Backend Developer</small>
+                        </div>
+                        <span class="badge" style="background: rgba(85, 214, 194, 0.15); color: var(--accent-primary);">
+                            88% Confidence
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Grid Section -->
+<section class="py-5" style="border-top: 1px solid var(--border-color); background: rgba(17, 27, 46, 0.25);">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="badge px-3 py-1 rounded-pill mb-2" style="background: rgba(108, 140, 255, 0.12); color: var(--accent-secondary); border: 1px solid rgba(108, 140, 255, 0.25);">
+                Core Engineering Capabilities
+            </span>
+            <h2 class="fw-bold text-white mb-2">Engineered with Precision & Transparency</h2>
+            <p class="text-secondary mx-auto" style="max-width: 620px;">
+                Natural Language Processing, line-based section detection, and machine learning working together to provide explainable feedback.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Feature 1 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="glass-card card-lift p-4 h-100">
+                    <div class="stat-icon stat-icon-blue mb-3">
+                        <i class="bi bi-file-earmark-code"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">Multi-Format Document Ingestion</h5>
+                    <p class="text-secondary mb-0 small">
+                        Parses text from PDF, Word (.docx), and plain text documents with binary magic-byte integrity validation to reject disguised executables.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="glass-card card-lift p-4 h-100">
+                    <div class="stat-icon stat-icon-secondary mb-3">
+                        <i class="bi bi-code-square"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">Boundary-Safe Skill Extraction</h5>
+                    <p class="text-secondary mb-0 small">
+                        Recognizes 60+ technical skills using boundary lookaheads for special characters (C++, C#, .NET) and list-context validation to prevent false positives on C, Go, or R.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="glass-card card-lift p-4 h-100">
+                    <div class="stat-icon stat-icon-cyan mb-3">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">Transparent 0–100 Scoring</h5>
+                    <p class="text-secondary mb-0 small">
+                        Explains points across 4 objective categories: standard section layout (30 pts), skill volume (35 pts), document length (15 pts), and job alignment (20 pts).
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="glass-card card-lift p-4 h-100">
+                    <div class="stat-icon stat-icon-emerald mb-3">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">Supervised Machine Learning</h5>
+                    <p class="text-secondary mb-0 small">
+                        Trained Scikit-Learn TF-IDF vectorizer + Logistic Regression pipeline categorizes technical profiles with live confidence and class probability distributions.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="glass-card card-lift p-4 h-100">
+                    <div class="stat-icon stat-icon-secondary mb-3">
+                        <i class="bi bi-arrow-left-right"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">Side-by-Side Revision Compare</h5>
+                    <p class="text-secondary mb-0 small">
+                        Compare two versions of your resume to track point improvements, newly acquired skills, and omitted keywords between revisions.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="glass-card card-lift p-4 h-100">
+                    <div class="stat-icon stat-icon-blue mb-3">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">User Isolation & Privacy</h5>
+                    <p class="text-secondary mb-0 small">
+                        Multi-tenant security ensures candidates only access their own files and reports. Uploads are stored privately and served through authenticated views.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Simple Workflow Section -->
+<section class="py-5" style="border-top: 1px solid var(--border-color);">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="badge px-3 py-1 rounded-pill mb-2" style="background: rgba(85, 214, 194, 0.1); color: var(--accent-primary); border: 1px solid rgba(85, 214, 194, 0.25);">
+                Straightforward Workflow
+            </span>
+            <h2 class="fw-bold text-white mb-2">How It Works in 3 Simple Steps</h2>
+            <p class="text-secondary mx-auto" style="max-width: 550px;">
+                From raw document to detailed analytics and career roadmap in seconds.
+            </p>
+        </div>
+
+        <div class="row g-4 text-center">
+            <!-- Step 1 -->
+            <div class="col-md-4">
+                <div class="glass-card card-lift p-4 h-100">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 56px; height: 56px; background: rgba(85, 214, 194, 0.15); color: var(--accent-primary); font-size: 1.35rem; font-weight: 800; border: 1px solid rgba(85, 214, 194, 0.3);">
+                        1
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">Upload Resume Document</h5>
+                    <p class="text-secondary small mb-0">
+                        Drag and drop your PDF, Word DOCX, or TXT file. Optionally provide a target job posting for targeted keyword gap analysis.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="col-md-4">
+                <div class="glass-card card-lift p-4 h-100">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 56px; height: 56px; background: rgba(108, 140, 255, 0.15); color: var(--accent-secondary); font-size: 1.35rem; font-weight: 800; border: 1px solid rgba(108, 140, 255, 0.3);">
+                        2
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">NLP Parsing & ML Inference</h5>
+                    <p class="text-secondary small mb-0">
+                        Our backend runs text normalization, line-based section detection, regex skill extraction, and TF-IDF career classification.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="col-md-4">
+                <div class="glass-card card-lift p-4 h-100">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 56px; height: 56px; background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); font-size: 1.35rem; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        3
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">Review Score & Recommendations</h5>
+                    <p class="text-secondary small mb-0">
+                        Inspect the 0–100 score breakdown, matched vs missing skills, actionable improvements, and download an offline text report.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action Card -->
+        <div class="mt-5 text-center">
+            <div class="glass-card p-5 mx-auto" style="max-width: 800px; background: linear-gradient(135deg, rgba(22, 34, 53, 0.95), rgba(17, 27, 46, 0.95)); border: 1px solid rgba(85, 214, 194, 0.25);">
+                <h3 class="fw-bold text-white mb-2">Ready to Evaluate Your Technical Resume?</h3>
+                <p class="text-secondary mb-4 small mx-auto" style="max-width: 520px;">
+                    Create a free account to test your resume against ATS standards, track revision progress, and receive career recommendations.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'signup' %}" class="btn-primary-gradient px-4 py-3">
+                        <i class="bi bi-rocket-takeoff-fill"></i> Get Started Free
+                    </a>
+                    <a href="{% url 'about' %}" class="btn-outline-glass px-4 py-3">
+                        <i class="bi bi-journal-code"></i> View Viva Guide
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

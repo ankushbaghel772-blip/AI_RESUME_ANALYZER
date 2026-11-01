@@ -1,0 +1,63 @@
+{% extends 'resumeapp/base.html' %}
+{% load static %}
+
+{% block title %}Sign In - AI Resume Analysis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'resumeapp/css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <span class="navbar-brand-badge mb-3" style="width: 52px; height: 52px; font-size: 1.6rem;">
+                <i class="bi bi-box-arrow-in-right"></i>
+            </span>
+            <h2 class="auth-title">Welcome Back</h2>
+            <p class="auth-subtitle">Sign in to your account to access your candidate workspace, resumes, and reports.</p>
+        </div>
+
+        <form method="POST" novalidate>
+            {% csrf_token %}
+            {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
+            
+            <div class="mb-3">
+                <label for="id_username" class="form-label">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-secondary text-secondary">
+                        <i class="bi bi-person"></i>
+                    </span>
+                    {{ form.username }}
+                </div>
+                {% if form.username.errors %}
+                    <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <label for="id_password" class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-secondary text-secondary">
+                        <i class="bi bi-key"></i>
+                    </span>
+                    {{ form.password }}
+                </div>
+                {% if form.password.errors %}
+                    <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn-primary-gradient w-100 py-3 justify-content-center">
+                <i class="bi bi-box-arrow-in-right"></i> Sign In to Account
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account? <a href="{% url 'signup' %}">Create one free</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

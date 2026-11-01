@@ -1,0 +1,425 @@
+{% extends 'resumeapp/base.html' %}
+{% load static %}
+
+{% block title %}Analysis Result - {{ analysis.original_filename }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'resumeapp/css/analysis.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Top Action Bar & Metadata -->
+    <div class="glass-card p-4 mb-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <span class="navbar-brand-badge" style="width: 44px; height: 44px; font-size: 1.35rem;">
+                    <i class="bi bi-file-earmark-check-fill"></i>
+                </span>
+                <div>
+                    <h4 class="fw-bold text-white mb-0 text-truncate" style="max-width: 480px;">
+                        {{ analysis.original_filename }}
+                    </h4>
+                    <small class="text-secondary">
+                        Analyzed on {{ analysis.uploaded_at|date:"M d, Y, h:i A" }} &bull; Word Count: <strong>{{ breakdown.word_count|default:"N/A" }} words</strong>
+                    </small>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'download_report' analysis.id %}" class="btn-primary-gradient btn-sm">
+                    <i class="bi bi-file-earmark-arrow-down"></i> Download Report (.txt)
+                </a>
+                <a href="{% url 'download_original_resume' analysis.id %}" class="btn-outline-glass btn-sm">
+                    <i class="bi bi-download"></i> Original File
+                </a>
+                <a href="{% url 'compare_resumes' %}?id1={{ analysis.id }}" class="btn-outline-glass btn-sm">
+                    <i class="bi bi-arrow-left-right"></i> Compare
+                </a>
+                <a href="{% url 'upload' %}" class="btn-outline-glass btn-sm">
+                    <i class="bi bi-plus-lg"></i> New Analysis
+                </a>
+                <a href="{% url 'history' %}" class="btn-outline-glass btn-sm">
+                    <i class="bi bi-clock-history"></i> History
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Score & Breakdown Row -->
+    <div class="row g-4 mb-4">
+        <!-- Overall Score Ring Card -->
+        <div class="col-lg-4">
+            <div class="glass-card p-4 text-center h-100 d-flex flex-column justify-content-center">
+                <span class="badge px-3 py-1 rounded-pill mb-3 mx-auto" style="background: rgba(85, 214, 194, 0.12); color: var(--accent-primary); border: 1px solid rgba(85, 214, 194, 0.25);">
+                    Overall ATS Readiness Score
+                </span>
+
+                <div class="score-circle {% if analysis.score >= 75 %}score-high{% elif analysis.score >= 50 %}score-medium{% else %}score-low{% endif %} mb-3">
+                    <div class="score-number">{{ analysis.score }}</div>
+                    <div class="score-label">OUT OF 100</div>
+                </div>
+
+                <h5 class="fw-bold text-white mb-2">
+                    {% if analysis.score >= 75 %}
+                        Excellent Candidate Profile
+                    {% elif analysis.score >= 50 %}
+                        Competitive / Moderate Profile
+                    {% else %}
+                        Needs Enhancement
+                    {% endif %}
+                </h5>
+
+                <p class="text-secondary small mb-3">
+                    Objective evaluation across section structure, skill richness, word count, and keyword alignment.
+                </p>
+
+                <div class="p-3 rounded-3 text-start small" style="background: rgba(17, 27, 46, 0.7); border: 1px solid var(--border-color);">
+                    <small class="text-secondary d-block">
+                        <i class="bi bi-shield-check text-info me-1"></i> <strong>Transparent Metric:</strong> This score measures keyword coverage and formatting structure. It serves as an analytical guide rather than an employment decision.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Score Breakdown Meters Card -->
+        <div class="col-lg-8">
+            <div class="glass-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-white mb-0">
+                        <i class="bi bi-bar-chart-steps text-info me-2"></i> Transparent Score Breakdown
+                    </h5>
+                    <span class="badge px-3 py-1 rounded-pill" style="background: rgba(108, 140, 255, 0.12); color: var(--accent-secondary); border: 1px solid rgba(108, 140, 255, 0.25);">
+                        100 Point Max
+                    </span>
+                </div>
+                <p class="text-secondary small mb-4">
+                    The overall score is computed deterministically from the following 4 pillars:
+                </p>
+
+                <!-- 1. Section Structure -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-white fw-semibold">
+                            <i class="bi bi-layout-text-window-reverse text-info me-1"></i> 1. Standard Section Structure
+                        </span>
+                        <span class="text-info fw-bold">{{ breakdown.sections_score }} / {{ breakdown.sections_max }} pts</span>
+                    </div>
+                    <div class="progress progress-dark">
+                        <div class="progress-bar progress-bar-purple" style="width: {% widthratio breakdown.sections_score breakdown.sections_max 100 %}%"></div>
+                    </div>
+                    <small class="text-secondary mt-1 d-block">{{ analysis.detected_sections|length }} standard sections identified (Contact, Summary, Experience, Education, Skills, Projects, Certifications).</small>
+                </div>
+
+                <!-- 2. Skill Richness -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-white fw-semibold">
+                            <i class="bi bi-code-slash text-info me-1"></i> 2. Technical Skill Richness & Volume
+                        </span>
+                        <span class="text-info fw-bold">{{ breakdown.skills_score }} / {{ breakdown.skills_max }} pts</span>
+                    </div>
+                    <div class="progress progress-dark">
+                        <div class="progress-bar progress-bar-primary" style="width: {% widthratio breakdown.skills_score breakdown.skills_max 100 %}%"></div>
+                    </div>
+                    <small class="text-secondary mt-1 d-block">{{ analysis.extracted_skills|length }} recognized industry skills detected in text.</small>
+                </div>
+
+                <!-- 3. Document Length -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-white fw-semibold">
+                            <i class="bi bi-file-earmark-text text-info me-1"></i> 3. Word Count & Document Density
+                        </span>
+                        <span class="text-info fw-bold">{{ breakdown.length_score }} / {{ breakdown.length_max }} pts</span>
+                    </div>
+                    <div class="progress progress-dark">
+                        <div class="progress-bar progress-bar-emerald" style="width: {% widthratio breakdown.length_score breakdown.length_max 100 %}%"></div>
+                    </div>
+                    <small class="text-secondary mt-1 d-block">{{ breakdown.word_count }} words parsed (optimal target: 250 &ndash; 1,000 words).</small>
+                </div>
+
+                <!-- 4. Alignment / Completeness -->
+                <div>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-white fw-semibold">
+                            <i class="bi bi-bullseye text-info me-1"></i> 4. {% if breakdown.has_job_description %}Job Description Match{% else %}Structural Completeness{% endif %}
+                        </span>
+                        <span class="text-info fw-bold">{{ breakdown.alignment_score }} / {{ breakdown.alignment_max }} pts</span>
+                    </div>
+                    <div class="progress progress-dark">
+                        <div class="progress-bar progress-bar-cyan" style="width: {% widthratio breakdown.alignment_score breakdown.alignment_max 100 %}%"></div>
+                    </div>
+                    <small class="text-secondary mt-1 d-block">
+                        {% if breakdown.has_job_description %}
+                            Calculated from keyword overlap with target employer requirements.
+                        {% else %}
+                            Baseline completeness score (no specific job description was provided).
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Description Comparison (If provided) -->
+    {% if analysis.job_description %}
+        <div class="glass-card p-4 mb-4">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                <h5 class="fw-bold text-white mb-0">
+                    <i class="bi bi-bullseye text-warning me-2"></i> Target Job Description Matching
+                </h5>
+                {% if breakdown.semantic_similarity %}
+                    <span class="badge px-3 py-2 rounded-pill" style="background: rgba(85, 214, 194, 0.15); color: var(--accent-primary); border: 1px solid rgba(85, 214, 194, 0.3);">
+                        <i class="bi bi-cpu me-1"></i> TF-IDF Cosine Similarity: <strong>{{ breakdown.semantic_similarity }}%</strong>
+                    </span>
+                {% endif %}
+            </div>
+
+            <div class="row g-4">
+                <!-- Matched Skills -->
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 h-100" style="background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.25);">
+                        <h6 class="fw-bold text-success mb-2">
+                            <i class="bi bi-check-circle-fill me-1"></i> Matched Competencies ({{ analysis.matched_skills|length }})
+                        </h6>
+                        {% if analysis.matched_skills %}
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for skill in analysis.matched_skills %}
+                                    <span class="skill-badge skill-badge-matched">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <small class="text-secondary">No exact skill overlaps detected with the provided description.</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Missing Skills -->
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 h-100" style="background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.25);">
+                        <h6 class="fw-bold text-danger mb-2">
+                            <i class="bi bi-x-circle-fill me-1"></i> Missing In-Demand Keywords ({{ analysis.missing_skills|length }})
+                        </h6>
+                        {% if analysis.missing_skills %}
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for skill in analysis.missing_skills %}
+                                    <span class="skill-badge skill-badge-missing">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <small class="text-success">Great job! Your resume covers all key skills from the job description.</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if breakdown.bert_matching %}
+                <div class="mt-4 p-3 rounded-3" style="background: rgba(108, 140, 255, 0.08); border: 1px solid rgba(108, 140, 255, 0.25);">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <h6 class="fw-bold text-white mb-1"><i class="bi bi-cpu text-info me-2"></i>Sentence Transformer semantic signal</h6>
+                            <small class="text-secondary">Separate from the 0–100 resume score and career classifier.</small>
+                        </div>
+                        {% if breakdown.bert_matching.available %}
+                            <span class="badge px-3 py-2 rounded-pill" style="background: rgba(108, 140, 255, 0.15); color: var(--accent-secondary); border: 1px solid rgba(108, 140, 255, 0.3);">
+                                Cosine similarity: <strong>{{ breakdown.bert_matching.cosine_similarity }}</strong>
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary">Temporarily unavailable</span>
+                        {% endif %}
+                    </div>
+                    <small class="text-secondary d-block mt-2">
+                        Uncalibrated semantic similarity, not a probability, percentage, or hiring decision.
+                        {% if breakdown.bert_matching.model_name %}Model: {{ breakdown.bert_matching.model_name }}.{% endif %}
+                    </small>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- Skills & Sections Grid -->
+    <div class="row g-4 mb-4">
+        <!-- Extracted Skills by Domain -->
+        <div class="col-lg-8">
+            <div class="glass-card p-4 h-100">
+                <h5 class="fw-bold text-white mb-3">
+                    <i class="bi bi-tags-fill text-info me-2"></i> Extracted Skills ({{ analysis.extracted_skills|length }})
+                </h5>
+
+                {% if categorized_skills %}
+                    {% for category, skills in categorized_skills.items %}
+                        <div class="mb-3">
+                            <h6 class="text-secondary small text-uppercase fw-bold mb-2" style="letter-spacing: 0.5px;">{{ category }}</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for s in skills %}
+                                    <span class="skill-badge">
+                                        <i class="bi bi-check2"></i> {{ s }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-secondary small mb-0">No standard technical keywords were recognized. Consider explicitly adding a 'Technical Skills' section with programming languages and tools.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Detected Sections -->
+        <div class="col-lg-4">
+            <div class="glass-card p-4 h-100">
+                <h5 class="fw-bold text-white mb-3">
+                    <i class="bi bi-layout-text-sidebar text-info me-2"></i> Detected Sections
+                </h5>
+                {% if analysis.detected_sections %}
+                    <div class="d-flex flex-column gap-2">
+                        {% for sec in analysis.detected_sections %}
+                            <div class="d-flex align-items-center gap-2 p-2 rounded-2" style="background: rgba(17, 27, 46, 0.7); border: 1px solid var(--border-color);">
+                                <i class="bi bi-check2-circle text-success fs-5"></i>
+                                <span class="text-white small fw-medium">{{ sec }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-secondary small mb-0">No standard section headers detected. Use standard headers such as 'Education', 'Work Experience', and 'Skills'.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Strengths & Suggestions Row (PROPERLY CLOSED) -->
+    <div class="row g-4 mb-4">
+        <!-- Strengths -->
+        <div class="col-md-6">
+            <div class="glass-card p-4 h-100">
+                <h5 class="fw-bold text-white mb-3">
+                    <i class="bi bi-hand-thumbs-up-fill text-success me-2"></i> Detected Strengths
+                </h5>
+                <ul class="feedback-list">
+                    {% for strength in analysis.strengths %}
+                        <li class="feedback-item">
+                            <i class="bi bi-check-circle-fill feedback-icon-strength"></i>
+                            <span class="text-white">{{ strength }}</span>
+                        </li>
+                    {% empty %}
+                        <li class="feedback-item text-secondary">Document structure parsed.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Improvement Suggestions -->
+        <div class="col-md-6">
+            <div class="glass-card p-4 h-100">
+                <h5 class="fw-bold text-white mb-3">
+                    <i class="bi bi-lightbulb-fill text-warning me-2"></i> Recommended Improvements
+                </h5>
+                <ul class="feedback-list">
+                    {% for tip in analysis.improvements %}
+                        <li class="feedback-item">
+                            <i class="bi bi-arrow-right-circle-fill feedback-icon-improvement"></i>
+                            <span class="text-white">{{ tip }}</span>
+                        </li>
+                    {% empty %}
+                        <li class="feedback-item text-success">Your resume has met all key structural best practices!</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Machine Learning Classifier Prediction -->
+    {% if ml_classification %}
+        <div class="glass-card p-4 mb-4">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                <div>
+                    <span class="badge px-3 py-1 rounded-pill mb-1" style="background: rgba(108, 140, 255, 0.15); color: var(--accent-secondary); border: 1px solid rgba(108, 140, 255, 0.3);">
+                        <i class="bi bi-cpu-fill me-1"></i> Multi-Class TF-IDF + Logistic Regression
+                    </span>
+                    <h5 class="fw-bold text-white mb-0">Machine Learning Career Track Prediction</h5>
+                </div>
+                <span class="badge px-3 py-2 rounded-pill fs-6" style="background: rgba(85, 214, 194, 0.15); color: var(--accent-primary); border: 1px solid rgba(85, 214, 194, 0.3);">
+                    Model Confidence: <strong>{{ ml_classification.confidence }}%</strong>
+                </span>
+            </div>
+
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-5">
+                    <div class="p-4 rounded-3 text-center" style="background: rgba(17, 27, 46, 0.7); border: 1px solid var(--border-color);">
+                        <small class="text-secondary d-block text-uppercase fw-bold mb-1" style="letter-spacing: 0.5px;">Top Predicted Role</small>
+                        <h4 class="fw-bold text-info mb-2" style="color: var(--accent-primary) !important;">{{ ml_classification.predicted_role }}</h4>
+                        <div class="progress progress-dark mb-2" style="height: 10px;">
+                            <div class="progress-bar progress-bar-primary" style="width: {{ ml_classification.confidence }}%"></div>
+                        </div>
+                        <small class="text-secondary d-block">
+                            Supervised multi-class classification evaluated via Scikit-Learn.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <h6 class="text-white small fw-bold mb-2">Class Probability Distribution:</h6>
+                    {% for role, prob in ml_classification.class_probabilities.items %}
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="{% if role == ml_classification.predicted_role %}text-info fw-bold{% else %}text-secondary{% endif %}">
+                                    {{ role }}
+                                </span>
+                                <span class="{% if role == ml_classification.predicted_role %}text-info fw-bold{% else %}text-muted{% endif %}">
+                                    {{ prob }}%
+                                </span>
+                            </div>
+                            <div class="progress progress-dark" style="height: 6px;">
+                                <div class="progress-bar {% if role == ml_classification.predicted_role %}progress-bar-primary{% else %}bg-secondary{% endif %}" style="width: {{ prob }}%"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mt-3 p-2 px-3 rounded-2 small text-secondary" style="background: rgba(17, 27, 46, 0.5); border: 1px solid var(--border-color);">
+                <i class="bi bi-info-circle me-1 text-info"></i> <strong>Note:</strong> Machine learning inference evaluates numerical TF-IDF feature vectors across the entire document text, whereas rule-based matching below displays direct keyword overlap.
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Recommended Career Tracks -->
+    <div class="glass-card p-4 mb-4">
+        <h5 class="fw-bold text-white mb-2">
+            <i class="bi bi-compass-fill text-info me-2"></i> Recommended Career Categories
+        </h5>
+        <p class="text-secondary small mb-4">
+            Evaluated by comparing your extracted skills against benchmark industry job tracks:
+        </p>
+
+        <div class="row g-3">
+            {% for career in analysis.recommendations %}
+                <div class="col-lg-6">
+                    <div class="career-card h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="fw-bold text-white mb-1">{{ career.role_title }}</h6>
+                                    <small class="text-secondary d-block">{{ career.description }}</small>
+                                </div>
+                                <span class="match-pill flex-shrink-0 ms-2 {% if career.match_percentage >= 50 %}match-pill-high{% elif career.match_percentage >= 25 %}match-pill-med{% else %}match-pill-low{% endif %}">
+                                    {{ career.match_percentage }}% Match
+                                </span>
+                            </div>
+
+                            <div class="progress progress-dark my-2">
+                                <div class="progress-bar progress-bar-purple" style="width: {{ career.match_percentage }}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-2 small text-secondary">
+                            {{ career.rationale }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+# CPU inference on Windows; this build matches the project verification environment.
+--extra-index-url https://download.pytorch.org/whl/cpu
+sentence-transformers==6.1.0
+torch==2.14.1+cpu
+transformers==5.19.0

@@ -1,0 +1,109 @@
+{% extends 'resumeapp/base.html' %}
+{% load static %}
+
+{% block title %}Upload Resume - AI Resume Analysis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'resumeapp/css/analysis.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <span class="badge px-3 py-1 rounded-pill mb-2" style="background: rgba(85, 214, 194, 0.12); color: var(--accent-primary); border: 1px solid rgba(85, 214, 194, 0.25);">
+                    <i class="bi bi-magic me-1"></i> Automated AI Extraction
+                </span>
+                <h2 class="fw-bold text-white mb-2">Upload Resume for Analysis</h2>
+                <p class="text-secondary small mx-auto" style="max-width: 580px;">
+                    Upload your resume to extract skills, evaluate document structure, compute an explainable ATS score, and receive matched career categories.
+                </p>
+            </div>
+
+            <div class="glass-card p-4 p-lg-5 position-relative">
+                <form method="POST" enctype="multipart/form-data" id="resumeUploadForm">
+                    {% csrf_token %}
+
+                    <!-- Drag and Drop Target Area -->
+                    <div class="upload-dropzone mb-4" id="uploadDropzone">
+                        <i class="bi bi-cloud-arrow-up upload-icon d-block"></i>
+                        <div class="upload-text-primary">Drag & drop your resume here, or click to browse</div>
+                        <div class="upload-text-secondary mb-3">
+                            Supported formats: <strong>PDF (.pdf)</strong>, <strong>Word (.docx)</strong>, <strong>Text (.txt)</strong> &bull; Maximum size: 5MB
+                        </div>
+
+                        <div class="d-flex justify-content-center gap-2">
+                            <span class="badge px-3 py-1" style="background: rgba(239, 68, 68, 0.12); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.25);">
+                                <i class="bi bi-file-earmark-pdf me-1"></i> PDF
+                            </span>
+                            <span class="badge px-3 py-1" style="background: rgba(108, 140, 255, 0.12); color: #cdd9ff; border: 1px solid rgba(108, 140, 255, 0.25);">
+                                <i class="bi bi-file-earmark-word me-1"></i> DOCX
+                            </span>
+                            <span class="badge px-3 py-1" style="background: rgba(85, 214, 194, 0.12); color: var(--accent-primary); border: 1px solid rgba(85, 214, 194, 0.25);">
+                                <i class="bi bi-file-earmark-text me-1"></i> TXT
+                            </span>
+                        </div>
+                        
+                        <!-- Hidden native input handled by upload.js -->
+                        <div style="display: none;">
+                            {{ form.resume_file }}
+                        </div>
+                    </div>
+
+                    {% if form.resume_file.errors %}
+                        <div class="alert alert-danger py-2 mb-4">
+                            <i class="bi bi-exclamation-triangle me-1"></i> {{ form.resume_file.errors.0 }}
+                        </div>
+                    {% endif %}
+
+                    <!-- Selected File Preview Container -->
+                    <div class="selected-file-box mb-4" id="selectedFilePreview">
+                        <i class="bi bi-file-earmark-check fs-2 text-success"></i>
+                        <div class="flex-grow-1 text-truncate">
+                            <div class="fw-bold text-white text-truncate" id="fileNameDisplay">filename.pdf</div>
+                            <small class="text-secondary" id="fileSizeDisplay">0.0 MB</small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.getElementById('resumeFileInput').click();">
+                            Change File
+                        </button>
+                    </div>
+
+                    <!-- Optional Target Job Description -->
+                    <div class="mb-4">
+                        <label for="id_job_description" class="form-label d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-file-earmark-code me-1 text-info"></i> Target Job Description (Optional)</span>
+                            <small class="text-muted">Enables matched vs missing skill analysis</small>
+                        </label>
+                        {{ form.job_description }}
+                        <small class="form-text text-secondary d-block mt-1">
+                            <i class="bi bi-lightbulb text-warning me-1"></i> <strong>Tip:</strong> Pasting the employer's job description allows our TF-IDF model to calculate semantic similarity and identify specific missing keywords.
+                        </small>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-primary-gradient w-100 py-3 justify-content-center fs-6" id="uploadSubmitBtn">
+                        <i class="bi bi-lightning-charge-fill"></i> Analyze Resume Now
+                    </button>
+                </form>
+
+                <!-- Processing Overlay / Spinner -->
+                <div id="uploadLoadingOverlay" style="display: none; position: absolute; inset: 0; background: rgba(11, 18, 32, 0.94); backdrop-filter: blur(8px); border-radius: var(--radius-lg); flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
+                    <div class="spinner-border text-info mb-3" style="width: 3.25rem; height: 3.25rem; color: var(--accent-primary) !important;" role="status"></div>
+                    <h5 class="fw-bold text-white mb-1">Analyzing Your Resume...</h5>
+                    <p class="text-secondary small mb-0">Running text extraction, NLP skill parsing, and ML inference.</p>
+                </div>
+            </div>
+
+            <!-- Helpful Hints -->
+            <div class="mt-4 text-center text-secondary small">
+                <i class="bi bi-info-circle me-1"></i> Scanned image-based PDFs without selectable text layers require an OCR engine. For best results, use digital documents with selectable text.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'resumeapp/js/upload.js' %}"></script>
+{% endblock %}

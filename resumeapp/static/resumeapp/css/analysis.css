@@ -1,0 +1,170 @@
+/* ==========================================================================
+   AI RESUME ANALYSIS - UPLOAD & RESULT ANALYSIS STYLESHEET
+   Subtle 3D Depth, Polished Dropzone, Gradient Progress Gauges
+   ========================================================================== */
+
+/* Drag & Drop Upload Zone */
+.upload-dropzone {
+    border: 2px dashed rgba(108, 140, 255, 0.35);
+    border-radius: var(--radius-lg);
+    padding: 3rem 1.5rem;
+    text-align: center;
+    background: rgba(17, 27, 46, 0.6);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    position: relative;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.upload-dropzone:hover, .upload-dropzone.dragover {
+    border-color: var(--accent-primary);
+    background: rgba(85, 214, 194, 0.04);
+    box-shadow: 0 0 24px rgba(85, 214, 194, 0.15), inset 0 2px 10px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.upload-icon {
+    font-size: 3.25rem;
+    color: var(--accent-primary);
+    margin-bottom: 0.85rem;
+    transition: var(--transition-smooth);
+    display: inline-block;
+}
+
+.upload-dropzone:hover .upload-icon {
+    transform: translateY(-4px) scale(1.05);
+    color: var(--accent-primary-hover);
+}
+
+.upload-text-primary {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+}
+
+.upload-text-secondary {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Selected File Preview Box */
+.selected-file-box {
+    display: none;
+    margin-top: 1.25rem;
+    padding: 1rem 1.25rem;
+    background: #111B2E;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Progress & Breakdown Bars */
+.progress-dark {
+    background-color: rgba(11, 18, 32, 0.8);
+    border: 1px solid rgba(108, 140, 255, 0.08);
+    border-radius: 8px;
+    height: 10px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.progress-bar-primary {
+    background: linear-gradient(90deg, var(--accent-primary), #38BDF8);
+    border-radius: 8px;
+}
+
+.progress-bar-purple {
+    background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+    border-radius: 8px;
+}
+
+.progress-bar-cyan {
+    background: linear-gradient(90deg, #38BDF8, var(--accent-primary));
+    border-radius: 8px;
+}
+
+.progress-bar-emerald {
+    background: linear-gradient(90deg, #059669, #10B981);
+    border-radius: 8px;
+}
+
+/* Feedback Lists */
+.feedback-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.feedback-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(30, 46, 72, 0.7);
+    font-size: 0.925rem;
+    line-height: 1.5;
+}
+
+.feedback-item:last-child {
+    border-bottom: none;
+}
+
+.feedback-icon-strength {
+    color: var(--accent-emerald);
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.feedback-icon-improvement {
+    color: var(--accent-amber);
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* Career Track Cards */
+.career-card {
+    padding: 1.35rem;
+    border-radius: var(--radius-md);
+    background: #111B2E;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-smooth);
+}
+
+.career-card:hover {
+    border-color: rgba(85, 214, 194, 0.35);
+    background: #16243a;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.match-pill {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.2px;
+}
+
+.match-pill-high {
+    background: rgba(16, 185, 129, 0.15);
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.match-pill-med {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fde68a;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.match-pill-low {
+    background: rgba(148, 163, 184, 0.15);
+    color: #cbd5e1;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+}

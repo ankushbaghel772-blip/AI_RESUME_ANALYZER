@@ -1,0 +1,35 @@
+# Python
+*.py[cod]
+__pycache__/
+*.so
+.Python
+
+# Virtual Environment
+ai/
+.venv/
+.testenv/
+.test-temp/
+venv/
+env/
+ENV/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# Environment variables
+.env
+
+# Generated experiment data and notebook outputs
+data/raw/
+data/processed/
+notebooks/.ipynb_checkpoints/
+ml/models/bert_resume_matcher/checkpoint-*/
+ml/models/bert_resume_matcher/training_args.bin
+
+# IDEs
+.vscode/
+.idea/

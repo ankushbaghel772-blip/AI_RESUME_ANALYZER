@@ -1,0 +1,104 @@
+{% extends 'resumeapp/base.html' %}
+{% load static %}
+
+{% block title %}User Profile - AI Resume Analysis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'resumeapp/css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header Card -->
+            <div class="glass-card p-4 mb-4">
+                <div class="d-flex flex-wrap align-items-center gap-4">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 76px; height: 76px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: #0B1220; font-size: 2.1rem; font-weight: 800; box-shadow: 0 4px 15px rgba(85, 214, 194, 0.35);">
+                        {{ user.username|slice:":1"|upper }}
+                    </div>
+                    <div>
+                        <h3 class="fw-bold text-white mb-1">{{ user.get_full_name|default:user.username }}</h3>
+                        <p class="text-secondary small mb-2">
+                            <i class="bi bi-envelope me-1"></i> {{ user.email }} &bull; Member since {{ user.date_joined|date:"M Y" }}
+                        </p>
+                        <span class="badge px-3 py-1" style="background: rgba(85, 214, 194, 0.12); color: var(--accent-primary); border: 1px solid rgba(85, 214, 194, 0.25);">
+                            <i class="bi bi-briefcase me-1"></i> {{ profile.target_role|default:"Software Engineer" }} ({{ profile.experience_level|default:"Entry Level" }})
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Summary & Update Form Grid -->
+            <div class="row g-4">
+                <!-- Aggregate Stats Column -->
+                <div class="col-md-4">
+                    <div class="glass-card p-4 h-100">
+                        <h5 class="fw-bold text-white mb-3">
+                            <i class="bi bi-pie-chart text-info me-2"></i> Account Stats
+                        </h5>
+
+                        <div class="mb-3 p-3 rounded-3" style="background: rgba(17, 27, 46, 0.7); border: 1px solid var(--border-color);">
+                            <small class="text-secondary d-block">Total Resumes Uploaded</small>
+                            <h3 class="fw-bold text-white mb-0">{{ total_resumes }}</h3>
+                        </div>
+
+                        <div class="mb-3 p-3 rounded-3" style="background: rgba(17, 27, 46, 0.7); border: 1px solid var(--border-color);">
+                            <small class="text-secondary d-block">Average Resume Score</small>
+                            <h3 class="fw-bold text-white mb-0">{{ avg_score }} <small class="fs-6 text-muted">/100</small></h3>
+                        </div>
+
+                        <div class="p-3 rounded-3" style="background: rgba(17, 27, 46, 0.7); border: 1px solid var(--border-color);">
+                            <small class="text-secondary d-block">Data Isolation & Security</small>
+                            <span class="badge bg-success-subtle text-success mt-1">
+                                <i class="bi bi-shield-check"></i> Multi-Tenant Isolated
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update Profile Details Column -->
+                <div class="col-md-8">
+                    <div class="glass-card p-4 h-100">
+                        <h5 class="fw-bold text-white mb-2">
+                            <i class="bi bi-person-gear text-info me-2"></i> Candidate Preferences
+                        </h5>
+                        <p class="text-secondary small mb-4">
+                            Keep your target role and experience preferences updated for tailored job recommendations.
+                        </p>
+
+                        <form method="POST">
+                            {% csrf_token %}
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <label class="form-label">Phone Number</label>
+                                    {{ form.phone }}
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label">Target Role</label>
+                                    {{ form.target_role }}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Experience Level</label>
+                                {{ form.experience_level }}
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Bio / Career Objective</label>
+                                {{ form.bio }}
+                            </div>
+
+                            <button type="submit" class="btn-primary-gradient px-4 py-2">
+                                <i class="bi bi-check2"></i> Save Profile Preferences
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

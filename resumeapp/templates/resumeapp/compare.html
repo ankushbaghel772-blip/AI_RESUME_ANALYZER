@@ -1,0 +1,261 @@
+{% extends 'resumeapp/base.html' %}
+{% load static %}
+
+{% block title %}Compare Resumes - AI Resume Analysis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'resumeapp/css/analysis.css' %}">
+<link rel="stylesheet" href="{% static 'resumeapp/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="glass-card p-4 mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-7">
+                <span class="badge px-3 py-1 rounded-pill mb-2" style="background: rgba(108, 140, 255, 0.12); color: var(--accent-secondary); border: 1px solid rgba(108, 140, 255, 0.25);">
+                    <i class="bi bi-arrow-left-right me-1"></i> Version Comparison Tool
+                </span>
+                <h3 class="fw-bold text-white mb-1">Compare Resume Versions</h3>
+                <p class="text-secondary small mb-0">
+                    Track improvements, score differences, and skill additions between different revisions of your resumes.
+                </p>
+            </div>
+            <div class="col-lg-5 text-lg-end">
+                <a href="{% url 'history' %}" class="btn-outline-glass me-2">
+                    <i class="bi bi-clock-history"></i> History
+                </a>
+                <a href="{% url 'upload' %}" class="btn-primary-gradient">
+                    <i class="bi bi-cloud-arrow-up"></i> Upload New
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selection Bar -->
+    <div class="glass-card p-4 mb-4">
+        <form method="GET" action="{% url 'compare_resumes' %}" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label for="id1" class="form-label text-white small fw-bold">Select Baseline Resume (Version A):</label>
+                <select name="id1" id="id1" class="form-select" required>
+                    <option value="">-- Choose First Resume --</option>
+                    {% for r in user_resumes %}
+                        <option value="{{ r.id }}" {% if selected_id1 == r.id %}selected{% endif %}>
+                            {{ r.original_filename }} ({{ r.uploaded_at|date:"M d, Y" }} - {{ r.score }}/100)
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <label for="id2" class="form-label text-white small fw-bold">Select Updated Resume (Version B):</label>
+                <select name="id2" id="id2" class="form-select" required>
+                    <option value="">-- Choose Second Resume --</option>
+                    {% for r in user_resumes %}
+                        <option value="{{ r.id }}" {% if selected_id2 == r.id %}selected{% endif %}>
+                            {{ r.original_filename }} ({{ r.uploaded_at|date:"M d, Y" }} - {{ r.score }}/100)
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn-primary-gradient w-100 py-2 justify-content-center">
+                    <i class="bi bi-arrow-left-right"></i> Compare
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if comparison and resume1 and resume2 %}
+        <!-- Delta Banner -->
+        <div class="glass-card p-4 mb-4 text-center">
+            <span class="badge px-3 py-1 rounded-pill mb-2" style="background: rgba(85, 214, 194, 0.12); color: var(--accent-primary); border: 1px solid rgba(85, 214, 194, 0.25);">
+                Revision Performance Delta
+            </span>
+            <h4 class="fw-bold text-white mb-2">Resume Revision Performance Delta</h4>
+            
+            <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 my-4">
+                <div class="text-center p-3 rounded-3" style="background: rgba(17, 27, 46, 0.6); border: 1px solid var(--border-color); min-width: 180px;">
+                    <small class="text-secondary d-block">Version A (Baseline)</small>
+                    <div class="fs-3 fw-bold text-secondary my-1">{{ resume1.score }} <small class="fs-6">/100</small></div>
+                    <small class="text-white text-truncate d-block" style="max-width: 170px;">{{ resume1.original_filename }}</small>
+                </div>
+
+                <div class="fs-2 text-info d-none d-sm-block">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+
+                <div class="text-center p-3 rounded-3" style="background: rgba(17, 27, 46, 0.6); border: 1px solid var(--border-color); min-width: 180px;">
+                    <small class="text-secondary d-block">Version B (Updated)</small>
+                    <div class="fs-3 fw-bold text-white my-1">{{ resume2.score }} <small class="fs-6">/100</small></div>
+                    <small class="text-white text-truncate d-block" style="max-width: 170px;">{{ resume2.original_filename }}</small>
+                </div>
+
+                <div class="p-3 rounded-3" style="min-width: 200px;">
+                    {% if comparison.score_diff > 0 %}
+                        <span class="badge bg-success fs-6 px-3 py-2 d-inline-flex align-items-center gap-1">
+                            <i class="bi bi-arrow-up-circle-fill"></i> +{{ comparison.score_diff }} pts Improvement
+                        </span>
+                    {% elif comparison.score_diff == 0 %}
+                        <span class="badge bg-secondary fs-6 px-3 py-2 d-inline-flex align-items-center gap-1">
+                            <i class="bi bi-dash-circle"></i> 0 pts (Identical Score)
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger fs-6 px-3 py-2 d-inline-flex align-items-center gap-1">
+                            <i class="bi bi-arrow-down-circle-fill"></i> {{ comparison.score_diff }} pts
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Skill Differences Grid -->
+        <div class="row g-4 mb-4">
+            <!-- Newly Added Skills -->
+            <div class="col-md-4">
+                <div class="glass-card p-4 h-100">
+                    <h6 class="fw-bold text-success mb-2 d-flex align-items-center gap-2">
+                        <i class="bi bi-plus-circle-fill"></i> Newly Added Skills ({{ comparison.new_in_resume2|length }})
+                    </h6>
+                    <small class="text-secondary d-block mb-3">Present in Version B, missing in Version A.</small>
+                    {% if comparison.new_in_resume2 %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for s in comparison.new_in_resume2 %}
+                                <span class="skill-badge skill-badge-matched">{{ s }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <small class="text-secondary">No newly added technical skills detected.</small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Retained Skills -->
+            <div class="col-md-4">
+                <div class="glass-card p-4 h-100">
+                    <h6 class="fw-bold text-info mb-2 d-flex align-items-center gap-2">
+                        <i class="bi bi-check-circle-fill"></i> Retained Skills ({{ comparison.common_skills|length }})
+                    </h6>
+                    <small class="text-secondary d-block mb-3">Consistently maintained across both revisions.</small>
+                    {% if comparison.common_skills %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for s in comparison.common_skills %}
+                                <span class="skill-badge">{{ s }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <small class="text-secondary">No overlapping skills found between the two files.</small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Removed Skills -->
+            <div class="col-md-4">
+                <div class="glass-card p-4 h-100">
+                    <h6 class="fw-bold text-danger mb-2 d-flex align-items-center gap-2">
+                        <i class="bi bi-dash-circle-fill"></i> Omitted Skills ({{ comparison.removed_in_resume2|length }})
+                    </h6>
+                    <small class="text-secondary d-block mb-3">Found in Version A, but absent in Version B.</small>
+                    {% if comparison.removed_in_resume2 %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for s in comparison.removed_in_resume2 %}
+                                <span class="skill-badge skill-badge-missing">{{ s }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <small class="text-success">Great! No previously detected skills were omitted.</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Side-by-Side Table Comparison -->
+        <div class="glass-card p-4 mb-4">
+            <h5 class="fw-bold text-white mb-3">Side-by-Side Metric Comparison</h5>
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>Evaluation Criterion</th>
+                            <th>Version A: {{ resume1.original_filename|truncatechars:25 }}</th>
+                            <th>Version B: {{ resume2.original_filename|truncatechars:25 }}</th>
+                            <th>Delta / Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="fw-semibold text-white">Overall ATS Score</td>
+                            <td><span class="badge bg-secondary">{{ resume1.score }} / 100</span></td>
+                            <td><span class="badge bg-info text-dark">{{ resume2.score }} / 100</span></td>
+                            <td>
+                                {% if comparison.score_diff > 0 %}
+                                    <span class="text-success fw-bold">+{{ comparison.score_diff }} pts</span>
+                                {% elif comparison.score_diff == 0 %}
+                                    <span class="text-secondary">0 pts</span>
+                                {% else %}
+                                    <span class="text-danger fw-bold">{{ comparison.score_diff }} pts</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-white">Sections Detected</td>
+                            <td>{{ resume1.detected_sections|length }} sections</td>
+                            <td>{{ resume2.detected_sections|length }} sections</td>
+                            <td>
+                                {% with diff=resume2.detected_sections|length|add:"-"|add:resume1.detected_sections|length %}
+                                    {% if resume2.detected_sections|length > resume1.detected_sections|length %}
+                                        <span class="text-success fw-bold">+{{ resume2.detected_sections|length|add:"-"|add:resume1.detected_sections|length }} sections</span>
+                                    {% elif resume2.detected_sections|length == resume1.detected_sections|length %}
+                                        <span class="text-secondary">Same</span>
+                                    {% else %}
+                                        <span class="text-warning fw-bold">Reduced</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-white">Total Skills Count</td>
+                            <td>{{ resume1.extracted_skills|length }} skills</td>
+                            <td>{{ resume2.extracted_skills|length }} skills</td>
+                            <td>
+                                {% if resume2.extracted_skills|length > resume1.extracted_skills|length %}
+                                    <span class="text-success fw-bold">+{{ resume2.extracted_skills|length|add:"-"|add:resume1.extracted_skills|length }} skills</span>
+                                {% elif resume2.extracted_skills|length == resume1.extracted_skills|length %}
+                                    <span class="text-secondary">Same</span>
+                                {% else %}
+                                    <span class="text-danger fw-bold">Fewer skills</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-white">Upload Timestamp</td>
+                            <td class="text-secondary small">{{ resume1.uploaded_at|date:"M d, Y h:i A" }}</td>
+                            <td class="text-secondary small">{{ resume2.uploaded_at|date:"M d, Y h:i A" }}</td>
+                            <td><span class="badge bg-secondary-subtle text-secondary small">Revisions</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% elif selected_id1 or selected_id2 %}
+        <div class="glass-card p-5 text-center">
+            <i class="bi bi-exclamation-circle text-warning display-4 mb-3 d-inline-block"></i>
+            <h5 class="text-white">Please select both resumes above to view comparison</h5>
+            <p class="text-secondary small mb-0">Choose a baseline version (Version A) and an updated version (Version B).</p>
+        </div>
+    {% else %}
+        <div class="glass-card p-5 text-center">
+            <i class="bi bi-arrow-left-right text-info display-4 mb-3 d-inline-block"></i>
+            <h5 class="text-white">Select Two Resumes to Compare</h5>
+            <p class="text-secondary small mb-3">Choose any two analyzed resumes from your account history to inspect point and skill differences.</p>
+            {% if not user_resumes %}
+                <a href="{% url 'upload' %}" class="btn-primary-gradient">
+                    <i class="bi bi-cloud-arrow-up"></i> Upload Your First Resume
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

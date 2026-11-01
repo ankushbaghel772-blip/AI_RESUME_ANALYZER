@@ -1,0 +1,198 @@
+{% extends 'resumeapp/base.html' %}
+{% load static %}
+
+{% block title %}Resume History - AI Resume Analysis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'resumeapp/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header with Search & Filter -->
+    <div class="glass-card p-4 mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-5">
+                <span class="badge px-3 py-1 rounded-pill mb-2" style="background: rgba(85, 214, 194, 0.12); color: var(--accent-primary); border: 1px solid rgba(85, 214, 194, 0.25);">
+                    <i class="bi bi-clock-history me-1"></i> Analysis Repository
+                </span>
+                <h3 class="fw-bold text-white mb-1">Resume History</h3>
+                <p class="text-secondary small mb-0">
+                    Review, search, compare, and manage your analyzed resumes.
+                </p>
+            </div>
+            <div class="col-lg-7">
+                <form method="GET" class="d-flex flex-wrap gap-2 justify-content-lg-end align-items-center">
+                    <div class="input-group" style="max-width: 240px;">
+                        <span class="input-group-text bg-transparent border-secondary text-secondary">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="Search resumes...">
+                    </div>
+
+                    <select name="sort" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                        <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest</option>
+                        <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest</option>
+                        <option value="score_high" {% if sort_by == 'score_high' %}selected{% endif %}>Highest Score</option>
+                        <option value="score_low" {% if sort_by == 'score_low' %}selected{% endif %}>Lowest Score</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-sm btn-outline-info">
+                        Filter
+                    </button>
+
+                    {% if query or sort_by != 'newest' %}
+                        <a href="{% url 'history' %}" class="btn btn-sm btn-outline-secondary">Reset</a>
+                    {% endif %}
+
+                    <a href="{% url 'compare_resumes' %}" class="btn btn-sm btn-outline-glass">
+                        <i class="bi bi-arrow-left-right"></i> Compare
+                    </a>
+
+                    <a href="{% url 'upload' %}" class="btn-primary-gradient btn-sm flex-shrink-0">
+                        <i class="bi bi-plus-lg"></i> Upload
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Table Card -->
+    <div class="glass-card p-4 mb-4">
+        {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Uploaded Date</th>
+                            <th>ATS Score</th>
+                            <th>Skills Found</th>
+                            <th>Sections</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        {% for item in page_obj %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-file-earmark-text text-info fs-5"></i>
+                                        <div>
+                                            <span class="fw-semibold text-white d-block">{{ item.original_filename }}</span>
+                                            {% if item.job_description %}
+                                                <span class="badge bg-secondary-subtle text-light border border-secondary small" style="font-size: 0.7rem;">With Job Description</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-secondary small">{{ item.uploaded_at|date:"M d, Y, h:i A" }}</td>
+                                <td>
+                                    <span class="badge px-3 py-1 fs-6 {% if item.score >= 75 %}bg-success{% elif item.score >= 50 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                        {{ item.score }} / 100
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="skill-badge py-1 px-2" style="font-size: 0.8rem;">
+                                        {{ item.extracted_skills|length }} skills
+                                    </span>
+                                </td>
+                                <td>
+                                    <small class="text-secondary">{{ item.detected_sections|length }} sections</small>
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        <a href="{% url 'result' item.id %}" class="btn btn-sm btn-outline-info" title="View Full Analysis">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                        <a href="{% url 'download_report' item.id %}" class="btn btn-sm btn-outline-glass" title="Download Text Report">
+                                            <i class="bi bi-file-earmark-arrow-down"></i>
+                                        </a>
+
+                                        <a href="{% url 'download_original_resume' item.id %}" class="btn btn-sm btn-outline-glass" title="Download Uploaded File">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+
+                                        <a href="{% url 'compare_resumes' %}?id1={{ item.id }}" class="btn btn-sm btn-outline-glass" title="Compare Against Another">
+                                            <i class="bi bi-arrow-left-right"></i>
+                                        </a>
+
+                                        <!-- Safe Delete Trigger Button -->
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ item.id }}" title="Delete Permanently">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Delete Confirmation Modal -->
+                                    <div class="modal fade" id="deleteModal{{ item.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content glass-card p-2 text-start">
+                                                <div class="modal-header border-0 pb-0">
+                                                    <h5 class="modal-title fw-bold text-white">Delete Resume Record?</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body text-secondary">
+                                                    Are you sure you want to delete <strong class="text-white">{{ item.original_filename }}</strong>? This will permanently remove the analysis results and delete the uploaded file from the server.
+                                                </div>
+                                                <div class="modal-footer border-0 pt-0">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                                    <form method="POST" action="{% url 'delete_resume' item.id %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-danger btn-sm">
+                                                            <i class="bi bi-trash-fill"></i> Delete Permanently
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <nav class="mt-4" aria-label="History pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link bg-transparent text-info border-secondary" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                                <a class="page-link {% if page_obj.number == num %}bg-info text-dark border-info{% else %}bg-transparent text-secondary border-secondary{% endif %}" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link bg-transparent text-info border-secondary" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-folder2-open display-4 text-muted mb-3 d-inline-block"></i>
+                <h5 class="text-white">No history records found</h5>
+                <p class="text-secondary small mb-4">Upload a resume to begin tracking your score progression.</p>
+                <a href="{% url 'upload' %}" class="btn-primary-gradient">
+                    <i class="bi bi-cloud-arrow-up"></i> Upload Resume
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'resumeapp/js/dashboard.js' %}"></script>
+{% endblock %}

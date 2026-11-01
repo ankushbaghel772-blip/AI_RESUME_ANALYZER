@@ -1,0 +1,119 @@
+{% extends 'resumeapp/base.html' %}
+{% load static %}
+
+{% block title %}Career & Job Track Recommendations - AI Resume Analysis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'resumeapp/css/analysis.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="glass-card p-4 mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-8">
+                <span class="badge px-3 py-1 rounded-pill mb-2" style="background: rgba(85, 214, 194, 0.12); color: var(--accent-primary); border: 1px solid rgba(85, 214, 194, 0.25);">
+                    <i class="bi bi-compass me-1"></i> Industry Alignment Engine
+                </span>
+                <h3 class="fw-bold text-white mb-1">Career Track Recommendations</h3>
+                <p class="text-secondary small mb-0">
+                    {% if latest_resume %}
+                        Based on skills extracted from your latest resume: <strong class="text-info">{{ latest_resume.original_filename }}</strong>
+                    {% else %}
+                        Benchmark roles matched against industry core competencies. Upload a resume to personalize.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'upload' %}" class="btn-primary-gradient">
+                    <i class="bi bi-cloud-arrow-up"></i> Upload New Resume
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Machine Learning Classifier Highlight -->
+    {% if ml_prediction %}
+        <div class="glass-card p-4 mb-4">
+            <div class="row align-items-center g-4">
+                <div class="col-md-7">
+                    <span class="badge px-3 py-1 rounded-pill mb-2" style="background: rgba(108, 140, 255, 0.15); color: var(--accent-secondary); border: 1px solid rgba(108, 140, 255, 0.3);">
+                        <i class="bi bi-cpu-fill me-1"></i> ML Supervised Model Prediction
+                    </span>
+                    <h4 class="fw-bold text-white mb-1">
+                        Primary Matched Role: <span class="text-info" style="color: var(--accent-primary) !important;">{{ ml_prediction.predicted_role }}</span>
+                    </h4>
+                    <p class="text-secondary small mb-0">
+                        Classified using full-text TF-IDF vectorization with <strong>{{ ml_prediction.confidence }}%</strong> model confidence.
+                    </p>
+                </div>
+                <div class="col-md-5">
+                    <div class="p-3 rounded-3" style="background: rgba(17, 27, 46, 0.7); border: 1px solid var(--border-color);">
+                        <small class="text-white d-block fw-bold mb-2">Class Probabilities:</small>
+                        {% for role, prob in ml_prediction.class_probabilities.items %}
+                            <div class="d-flex justify-content-between text-secondary mb-1" style="font-size: 0.825rem;">
+                                <span>{{ role }}</span>
+                                <strong class="{% if role == ml_prediction.predicted_role %}text-info{% else %}text-muted{% endif %}">{{ prob }}%</strong>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Career Cards List -->
+    <div class="row g-4">
+        {% for role in recommendations %}
+            <div class="col-lg-6">
+                <div class="glass-card card-lift p-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <!-- Header with Title & Match Pill -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-bold text-white mb-1">{{ role.role_title }}</h5>
+                                <small class="text-secondary">{{ role.description }}</small>
+                            </div>
+                            <span class="match-pill flex-shrink-0 ms-2 {% if role.match_percentage >= 50 %}match-pill-high{% elif role.match_percentage >= 25 %}match-pill-med{% else %}match-pill-low{% endif %}">
+                                {{ role.match_percentage }}% Match
+                            </span>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="progress progress-dark mb-3">
+                            <div class="progress-bar progress-bar-primary" style="width: {{ role.match_percentage }}%"></div>
+                        </div>
+
+                        <!-- Matched Skills -->
+                        <div class="mb-3">
+                            <small class="text-secondary d-block fw-semibold mb-1">
+                                <i class="bi bi-check2-circle text-success me-1"></i> Matched Competencies ({{ role.matched_skills|length }})
+                            </small>
+                            {% if role.matched_skills %}
+                                <div class="d-flex flex-wrap gap-1">
+                                    {% for s in role.matched_skills %}
+                                        <span class="skill-badge skill-badge-matched py-1 px-2" style="font-size: 0.775rem;">{{ s }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span class="text-muted small">0 direct matches in current resume</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Recommended Next Skills -->
+                        <div class="mb-2">
+                            <small class="text-secondary d-block fw-semibold mb-1">
+                                <i class="bi bi-lightbulb text-warning me-1"></i> Recommended Next Skills:
+                            </small>
+                            <small class="text-secondary">
+                                {{ role.rationale }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
