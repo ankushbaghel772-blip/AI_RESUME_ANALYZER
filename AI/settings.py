@@ -1,4 +1,4 @@
-python
+
 """
 Django settings for AI project.
 Configured for AI Resume Analysis System.
@@ -11,14 +11,18 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.messages import constants as messages
 
 # --------------------------------------------------
-# BASE DIRECTORY AND ENVIRONMENT
+# BASE DIRECTORY
 # --------------------------------------------------
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load .env file for local development
 load_dotenv(BASE_DIR / ".env")
 
-# Production-safe DEBUG default
+# --------------------------------------------------
+# DEBUG CONFIGURATION
+# --------------------------------------------------
+
 DEBUG = os.environ.get("DEBUG", "False").lower() in (
     "true", "1", "yes"
 )
@@ -31,26 +35,27 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 if not SECRET_KEY:
     if DEBUG:
-        # Local development only
         SECRET_KEY = (
             "django-insecure-local-development-only-change-me"
         )
     else:
         raise ImproperlyConfigured(
-            "Set SECRET_KEY in your deployment environment."
+            "SECRET_KEY environment variable must be set."
         )
 
 # --------------------------------------------------
 # ALLOWED HOSTS
 # --------------------------------------------------
 
-_default_hosts = (
+DEFAULT_HOSTS = (
     "localhost,127.0.0.1,"
+    "ai-resume-analyzer-y6gx-git-main-ankush-0737.vercel.app,"
+    "ai-resume-analyzer-y6gx-2ii9grzfd-ankush-0737.vercel.app,"
     "ai-resume-analyzer-xmjb-eta.vercel.app"
 )
 
 _raw_allowed_hosts = os.environ.get(
-    "ALLOWED_HOSTS", _default_hosts
+    "ALLOWED_HOSTS", DEFAULT_HOSTS
 )
 
 ALLOWED_HOSTS = [
@@ -63,7 +68,7 @@ if "testserver" not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append("testserver")
 
 # --------------------------------------------------
-# APPLICATIONS
+# INSTALLED APPLICATIONS
 # --------------------------------------------------
 
 INSTALLED_APPS = [
@@ -115,13 +120,12 @@ TEMPLATES = [
 WSGI_APPLICATION = "AI.wsgi.application"
 
 # --------------------------------------------------
-# DATABASE
+# DATABASE CONFIGURATION
 # --------------------------------------------------
 
-USE_MYSQL = (
-    os.environ.get("USE_MYSQL", "False").lower()
-    in ("true", "1", "yes")
-)
+USE_MYSQL = os.environ.get(
+    "USE_MYSQL", "False"
+).lower() in ("true", "1", "yes")
 
 if USE_MYSQL:
     DATABASES = {
@@ -185,16 +189,25 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
+
 USE_I18N = True
 USE_TZ = True
 
 # --------------------------------------------------
-# STATIC AND MEDIA FILES
+# STATIC FILES
 # --------------------------------------------------
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# --------------------------------------------------
+# MEDIA / RESUME UPLOADS
+# --------------------------------------------------
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -208,7 +221,7 @@ LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "home"
 
 # --------------------------------------------------
-# DJANGO MESSAGES
+# DJANGO MESSAGE TAGS
 # --------------------------------------------------
 
 MESSAGE_TAGS = {
