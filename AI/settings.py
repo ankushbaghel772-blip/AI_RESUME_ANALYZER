@@ -1,4 +1,4 @@
-```python
+python
 """
 Django settings for AI project.
 Configured for AI Resume Analysis System.
@@ -224,4 +224,3 @@ MESSAGE_TAGS = {
 # --------------------------------------------------
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-```
